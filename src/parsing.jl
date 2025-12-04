@@ -286,20 +286,6 @@ function pqparse(::Type{ZonedDateTime}, str::AbstractString)
     return parse(ZonedDateTime, _trunc_seconds(str), TIMESTAMPTZ_FORMATS[end])
 end
 
-function pqparse(::Type{UTCDateTime}, str::AbstractString)
-    parsed = _tryparse_datetime_inf(UTCDateTime, str)
-    isnothing(parsed) || return parsed
-
-    # Postgres should always give us strings ending with +00 if our timezone is set to UTC
-    # which is the default
-    str = replace(str, "+00" => "")
-
-    parsed = tryparse(UTCDateTime, str, TIMESTAMP_FORMAT)
-    isnothing(parsed) || return parsed
-
-    return parse(UTCDateTime, _trunc_seconds(str), TIMESTAMP_FORMAT)
-end
-
 _DEFAULT_TYPE_MAP[:date] = Date
 function pqparse(::Type{Date}, str::AbstractString)
     if str == "infinity"
@@ -351,10 +337,6 @@ function Base.parse(::Type{ZonedDateTime}, pqv::PQValue{PQ_SYSTEM_TYPES[:int8]})
     return TimeZones.unix2zdt(parse(Int64, pqv))
 end
 
-function Base.parse(::Type{UTCDateTime}, pqv::PQValue{PQ_SYSTEM_TYPES[:int8]})
-    return UTCDateTime(parse(DateTime, pqv))
-end
-
 # All postgresql timestamptz are stored in UTC time with the epoch of 2000-01-01.
 const POSTGRES_EPOCH_DATE = Date("2000-01-01")
 const POSTGRES_EPOCH_DATETIME = DateTime("2000-01-01")
@@ -373,10 +355,6 @@ function pqparse(::Type{ZonedDateTime}, ptr::Ptr{UInt8})
     end
     dt = POSTGRES_EPOCH_DATETIME + Microsecond(value)
     return ZonedDateTime(dt, tz"UTC"; from_utc=true)
-end
-
-function pqparse(::Type{UTCDateTime}, ptr::Ptr{UInt8})
-    return UTCDateTime(pqparse(DateTime, ptr))
 end
 
 function pqparse(::Type{DateTime}, ptr::Ptr{UInt8})
