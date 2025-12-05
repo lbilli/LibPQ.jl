@@ -6,7 +6,7 @@ show_option(num::Real) = num
 const CONNECTION_OPTION_DEFAULTS = Dict{String, String}(
     "DateStyle" => "ISO,YMD",
     "IntervalStyle" => "iso_8601",
-    "TimeZone" => DEFAULT_CLIENT_TIME_ZONE[],
+    "TimeZone" => DEFAULT_CLIENT_TIME_ZONE,
 )
 
 function _connection_parameter_dict(;
@@ -254,7 +254,7 @@ The default connection options are:
 $(join(map((k, v) for (k, v) in CONNECTION_OPTION_DEFAULTS if k != "TimeZone") do (k, v)
     "* `$(repr(k)) => $(repr(v))`"
 end, "\n"))
-* `"TimeZone" => $(repr(DEFAULT_CLIENT_TIME_ZONE[]))`, or the `PGTZ` environment variable.
+* `"TimeZone" => $(repr(DEFAULT_CLIENT_TIME_ZONE))`, or the `PGTZ` environment variable.
   Will use the server time zone if option is set to `""`.
 
 Note that these default connection options may be different than the defaults used by the

@@ -418,7 +418,6 @@ foreach(generate_binary_date_parser, (:timestamptz, :timestamp, :date))
 ## intervals
 # iso_8601
 _DEFAULT_TYPE_MAP[:interval] = Dates.CompoundPeriod
-const INTERVAL_REGEX = Ref{Regex}()  # set at __init__
 
 function _interval_regex()
     function _field_match(period_type, number_match="-?\\d+")
@@ -444,6 +443,8 @@ function _interval_regex()
 
     return Regex(String(take!(io)))
 end
+
+const INTERVAL_REGEX = _interval_regex()
 
 function _split_period(period::T, ::Type{P}) where {T<:Period,P<:Period}
     q, r = divrem(period, convert(T, P(1)))
@@ -489,11 +490,11 @@ end
 # parse the iso_8601 interval output format
 # https://www.postgresql.org/docs/10/datatype-datetime.html#DATATYPE-INTERVAL-OUTPUT
 function pqparse(::Type{Dates.CompoundPeriod}, str::AbstractString)
-    interval_regex = INTERVAL_REGEX[]
-    matched = match(interval_regex, str)
+
+    matched = match(INTERVAL_REGEX, str)
 
     if matched === nothing
-        error("Couldn't parse $str as interval using regex $interval_regex")
+        error("Couldn't parse $str as interval using regex $INTERVAL_REGEX")
     end
 
     periods = Period[]

@@ -31,11 +31,6 @@ using DBInterface
 
 const Parameter = Union{String,Missing}
 
-function __init__()
-    INTERVAL_REGEX[] = _interval_regex()
-    return nothing
-end
-
 # Docstring template for types using DocStringExtensions
 @template TYPES = """
         $(TYPEDEF)
@@ -47,21 +42,21 @@ end
     $(TYPEDFIELDS)
     """
 
-include(joinpath(@__DIR__, "utils.jl"))
+include("utils.jl")
 
 module libpq_c
     export Oid
 
     using LibPQ_jll
 
-    include(joinpath(@__DIR__, "headers", "libpq-fe.jl"))
+    include(joinpath("headers", "libpq-fe.jl"))
 end
 
 using .libpq_c
 
 include("typemaps.jl")
 
-const DEFAULT_CLIENT_TIME_ZONE = Ref("UTC")
+const DEFAULT_CLIENT_TIME_ZONE = "UTC"
 
 """
     const LIBPQ_TYPE_MAP::PQTypeMap
