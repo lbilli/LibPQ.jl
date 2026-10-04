@@ -28,6 +28,7 @@ using OffsetArrays
 using SQLStrings
 using TimeZones
 using DBInterface
+using UUIDs: UUID
 
 const Parameter = Union{String,Missing}
 
